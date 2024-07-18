@@ -27,27 +27,30 @@ public class GithubAPIService {
     private void setupGithubConnection() throws IOException {
         try {
             initFromCustomPropertyFile();
+            log.info("Github connection setup using custom property file successful");
         } catch (IOException e) {
-            log.error("Initialization from property file unsuccessfull, {}", e.getMessage());
+            log.error("Initialization from property file unsuccessful, {}", e.getMessage());
             github = null;
         }
 
         try {
             if (github == null) {
                 initFromDefaultPropertyFile();
+                log.info("Github connection setup using default property file successful");
             }
         } catch (IOException e) {
-            log.error("Initialization from default property file unsuccessfull, {}", e.getMessage());
+            log.error("Initialization from default property file unsuccessful, {}", e.getMessage());
             github = null;
         }
 
         try {
-            if(github == null) {
+            if (github == null) {
                 initFromEnvironmentVariable();
+                log.info("Github connection setup using environment variable successful");
             }
         }
         catch (IOException e) {
-            log.error("Initialization from environment variables unsuccessfull, " +
+            log.error("Initialization from environment variables unsuccessful, " +
                     "try to export GITHUB_OAUTH token variable. {}", e.getMessage());
             throw e;
         }
