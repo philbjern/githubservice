@@ -4,8 +4,15 @@ Github Repositories search service is a server application that enables searchin
 ## `.github` file
 App searches for the file in a custom folder `src/main/resources/.github` first, then falls back to detecting default `~/.github` in a home directory. Last option is setting environment variable with github auth token `export GITHUB_OAUTH=4d98173f7c075527cb64878561d1fe70`
 
+## Application endpoint
+After launching, app is available at this address `http://localhost:8081/api/{username}`
+Different port can be chosed by modifing `application.properties` and setting different port as `server.port` property.
+
 ## Sample output
-Here is (reduced for brevity) sample server response for my account
+Here is (reduced for brevity) sample server response for my account.
+
+`$ curl http://localhost:8081/api/philbjern`
+
 ```
 [
     {
