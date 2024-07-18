@@ -18,7 +18,7 @@ public class GithubAPIService {
 
     private GitHub github;
 
-    private List<Repository> repos = new ArrayList<>();
+    private final List<Repository> repos = new ArrayList<>();
 
     public GithubAPIService() throws IOException {
         setupGithubConnection();
@@ -66,7 +66,14 @@ public class GithubAPIService {
     }
 
     public List<Repository> getUserRepositoriesData(String username) throws IOException {
-        GHUser user = github.getUser(username);
+        GHUser user;
+        try {
+            user = github.getUser(username);
+        } catch (IOException e) {
+            throw new IOException("Provided username does not exist.");
+        }
+
+        log.info("Getting user {} repositories", user.getName());
         Map<String, GHRepository> userRepos = user.getRepositories();
         Map<String, GHRepository> notForkedRepos = getNotForkedRepositories(userRepos);
 
@@ -89,7 +96,7 @@ public class GithubAPIService {
 
             repos.add(repo);
         });
-        log.info("GithubAPIService user={}, repos={}", username, repos);
+        log.info("User repositories fetched successfully, user={}, repos={}", username, repos);
         return repos;
     }
 
