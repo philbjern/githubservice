@@ -18,31 +18,51 @@ public class GithubAPIService {
 
     private GitHub github;
 
-    List<Repository> repos = new ArrayList<>();
+    private List<Repository> repos = new ArrayList<>();
 
-    public GithubAPIService() {
+    public GithubAPIService() throws IOException {
+        setupGithubConnection();
+    }
+
+    private void setupGithubConnection() throws IOException {
         try {
-            initFromPropertyFile();
+            initFromCustomPropertyFile();
         } catch (IOException e) {
-            log.error("Initialization from property file unsuccessfull");
+            log.error("Initialization from property file unsuccessfull, {}", e.getMessage());
+            github = null;
         }
+
+        try {
+            if (github == null) {
+                initFromDefaultPropertyFile();
+            }
+        } catch (IOException e) {
+            log.error("Initialization from default property file unsuccessfull, {}", e.getMessage());
+            github = null;
+        }
+
         try {
             if(github == null) {
-                initFromEnvironemenVariable();
+                initFromEnvironmentVariable();
             }
         }
         catch (IOException e) {
             log.error("Initialization from environment variables unsuccessfull, " +
-                    "try to export GITHUB_OAUTH token variable");
+                    "try to export GITHUB_OAUTH token variable. {}", e.getMessage());
+            throw e;
         }
     }
 
-    private void initFromEnvironemenVariable() throws IOException {
+    private void initFromEnvironmentVariable() throws IOException {
         github = GitHubBuilder.fromEnvironment().build();
     }
 
-    private void initFromPropertyFile() throws IOException {
+    private void initFromCustomPropertyFile() throws IOException {
         github = GitHubBuilder.fromPropertyFile("src/main/resources/.github").build();
+    }
+
+    private void initFromDefaultPropertyFile() throws IOException {
+        github = GitHubBuilder.fromPropertyFile().build();
     }
 
     public List<Repository> getUserRepositoriesData(String username) throws IOException {
@@ -69,13 +89,13 @@ public class GithubAPIService {
 
             repos.add(repo);
         });
-        log.info("GithubAPIService test {}, {}", username, repos);
+        log.info("GithubAPIService user={}, repos={}", username, repos);
         return repos;
     }
 
     private Map<String, GHRepository> getNotForkedRepositories(Map<String, GHRepository> repos) {
         Map<String, GHRepository> notForkedRepos = new HashMap<>();
-        repos.entrySet().stream().forEach(entry -> {
+        repos.entrySet().forEach(entry -> {
             String repoName = entry.getKey();
             if (!entry.getValue().isFork()) {
                 notForkedRepos.put(repoName, entry.getValue());

@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public class ErrorDTO {
 
     private Integer errorCode;
+
     private String message;
 
 }
