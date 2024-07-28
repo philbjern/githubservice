@@ -8,9 +8,10 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -30,24 +31,18 @@ public class GithubAPIService {
             log.info("Github connection setup using custom property file successful");
         } catch (IOException e) {
             log.error("Initialization from property file unsuccessful, {}", e.getMessage());
-            github = null;
         }
 
         try {
-            if (github == null) {
-                initFromDefaultPropertyFile();
-                log.info("Github connection setup using default property file successful");
-            }
+            initFromDefaultPropertyFile();
+            log.info("Github connection setup using default property file successful");
         } catch (IOException e) {
             log.error("Initialization from default property file unsuccessful, {}", e.getMessage());
-            github = null;
         }
 
         try {
-            if (github == null) {
-                initFromEnvironmentVariable();
-                log.info("Github connection setup using environment variable successful");
-            }
+            initFromEnvironmentVariable();
+            log.info("Github connection setup using environment variable successful");
         }
         catch (IOException e) {
             log.error("Initialization from environment variables unsuccessful, " +
@@ -69,49 +64,36 @@ public class GithubAPIService {
     }
 
     public List<Repository> getUserRepositoriesData(String username) throws IOException {
-        GHUser user;
-        try {
-            user = github.getUser(username);
-        } catch (IOException e) {
+        Optional<GHUser> user = Optional.ofNullable(github.getUser(username));
+        if (user.isEmpty()) {
             throw new IOException("Provided username does not exist.");
         }
 
-        log.info("Getting user {} repositories", user.getName());
-        Map<String, GHRepository> userRepos = user.getRepositories();
+        log.info("Getting user {} repositories", user.get().getName());
+        Map<String, GHRepository> userRepos = user.get().getRepositories();
         Map<String, GHRepository> notForkedRepos = getNotForkedRepositories(userRepos);
 
         notForkedRepos.entrySet().stream().forEach(entry -> {
-            Repository repo = new Repository();
-            repo.setRepositoryName(entry.getKey());
-            repo.setOwnerLogin(entry.getValue().getOwnerName());
-
+            List<Branch> repoBranches = new ArrayList<>();
             try {
                 Map<String, GHBranch> branches = entry.getValue().getBranches();
                 branches.entrySet().forEach(entry1 -> {
-                    Branch branch = new Branch();
-                    branch.setName(entry1.getKey());
-                    branch.setLastCommitSHA(entry1.getValue().getSHA1());
-                    repo.addBranch(branch);
+                    Branch branch = new Branch(entry1.getKey(), entry1.getValue().getSHA1());
+                    repoBranches.add(branch);
                 });
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
-
-            repos.add(repo);
+            Repository repo = new Repository(entry.getKey(), entry.getValue().getOwnerName(), repoBranches);
         });
         log.info("User repositories fetched successfully, user={}, repos={}", username, repos);
         return repos;
     }
 
     private Map<String, GHRepository> getNotForkedRepositories(Map<String, GHRepository> repos) {
-        Map<String, GHRepository> notForkedRepos = new HashMap<>();
-        repos.entrySet().forEach(entry -> {
-            String repoName = entry.getKey();
-            if (!entry.getValue().isFork()) {
-                notForkedRepos.put(repoName, entry.getValue());
-            }
-        });
-        return notForkedRepos;
+        return repos.entrySet().stream()
+                .filter(entry -> !entry.getValue().isFork())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
 }
