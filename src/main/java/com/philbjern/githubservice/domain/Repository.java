@@ -1,21 +1,6 @@
 package com.philbjern.githubservice.domain;
 
-import lombok.Data;
-
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
-public class Repository {
 
-    private String repositoryName;
-
-    private String ownerLogin;
-
-    private List<Branch> branches = new ArrayList<>();
-
-    public void addBranch(Branch branch) {
-        this.branches.add(branch);
-    }
-
-}
+public record Repository (String repositoryName, String ownerLogin, List<Branch> branches) {};
