@@ -4,7 +4,10 @@ import com.philbjern.githubservice.domain.Branch;
 import com.philbjern.githubservice.domain.Repository;
 import lombok.extern.slf4j.Slf4j;
 import org.kohsuke.github.*;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -15,17 +18,19 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@PropertySource("github.properties")
 public class GithubAPIService {
+
+    @Value("github.api.url")
+    private String GITHUB_API_URL;
+
+    private RestClient restClient;
 
     private GitHub github;
 
-    private final List<Repository> repos = new ArrayList<>();
+    private final List<Repository> result = new ArrayList<>();
 
-    public GithubAPIService() throws IOException {
-        setupGithubConnection();
-    }
-
-    private void setupGithubConnection() throws IOException {
+    public void setup() throws IOException {
         try {
             initFromCustomPropertyFile();
             log.info("Github connection setup using custom property file successful");
@@ -86,8 +91,8 @@ public class GithubAPIService {
             }
             Repository repo = new Repository(entry.getKey(), entry.getValue().getOwnerName(), repoBranches);
         });
-        log.info("User repositories fetched successfully, user={}, repos={}", username, repos);
-        return repos;
+        log.info("User repositories fetched successfully, user={}, repos={}", username, result);
+        return result;
     }
 
     private Map<String, GHRepository> getNotForkedRepositories(Map<String, GHRepository> repos) {
