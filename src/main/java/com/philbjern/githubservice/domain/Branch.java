@@ -1,3 +1,14 @@
 package com.philbjern.githubservice.domain;
 
-public record  Branch (String name, String lastCommitSHA) {}
+import lombok.Data;
+
+import java.util.List;
+
+@Data
+public class Branch {
+
+    String name;
+
+    Commit commit;
+
+}

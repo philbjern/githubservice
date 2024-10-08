@@ -3,8 +3,8 @@ package com.philbjern.githubservice.domain;
 import lombok.Data;
 
 @Data
-public class Commit {
+public class Owner {
 
-    String sha;
+    String login;
 
 }

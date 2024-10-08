@@ -1,2 +1,12 @@
-package com.philbjern.githubservice.dto;public class BranchDTO {
+package com.philbjern.githubservice.dto;
+
+import lombok.Data;
+
+@Data
+public class BranchDTO {
+
+    String name;
+
+    String lastCommitSHA;
+
 }

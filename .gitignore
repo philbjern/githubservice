@@ -33,4 +33,4 @@ build/
 .vscode/
 
 .github
-secret.properties
+github.properties
