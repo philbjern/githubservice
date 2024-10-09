@@ -1,5 +1,6 @@
 package com.philbjern.githubservice.dto;
 
+import com.philbjern.githubservice.domain.Branch;
 import lombok.Data;
 
 import java.util.List;
@@ -11,6 +12,6 @@ public class Response {
 
     String ownerLogin;
 
-    List<BranchDTO> branches;
+    List<Branch> branches;
 
 }
