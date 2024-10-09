@@ -1,8 +1,14 @@
 # Github Repositories Search Service
-Github Repositories search service is a server application that enables searching for any github user repositories that are not forks. For this app to work, you need to provide a github authentication token in a `.github` file. 
+Github Repositories search service is a server application that enables searching for any github user repositories that are not forks. For this app to work, you need to provide a github authentication token in a `github.properties` file. 
 
-## `.github` file
-App searches for the file in a custom folder `src/main/resources/.github` first, then falls back to detecting default `~/.github` in a home directory. Last option is setting environment variable with github auth token `export GITHUB_OAUTH=4d98173f7c075527cb64878561d1fe70`
+## `github.properties` file
+App searches for a properties file with Github API key in path `src/main/resources/github.properties` 
+
+`github.properties` format
+```
+github.api.url=https://api.github.com/
+github.api.key={your_github_api_key}
+```
 
 ## Application endpoint
 After launching, app is available at this address `http://localhost:8081/api/{username}`
