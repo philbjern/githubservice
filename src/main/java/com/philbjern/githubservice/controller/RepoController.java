@@ -68,7 +68,7 @@ public class RepoController {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDTO> handleException(IOException e) {
+    public ResponseEntity<ErrorDTO> handleException(Exception e) {
         ErrorDTO error = ErrorDTO.builder()
                 .errorCode(404)
                 .message(e.getMessage())
