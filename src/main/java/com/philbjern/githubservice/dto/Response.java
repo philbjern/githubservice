@@ -1,6 +1,6 @@
 package com.philbjern.githubservice.dto;
 
-import com.philbjern.githubservice.domain.Branch;
+import com.philbjern.githubservice.entity.Branch;
 import lombok.Data;
 
 import java.util.List;

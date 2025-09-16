@@ -1,4 +1,4 @@
-package com.philbjern.githubservice.domain;
+package com.philbjern.githubservice.entity;
 
 import java.util.List;
 

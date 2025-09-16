@@ -1,11 +1,13 @@
 package com.philbjern.githubservice.controller;
 
-import com.philbjern.githubservice.domain.Branch;
-import com.philbjern.githubservice.domain.GithubAPIUsersResponse;
+import com.philbjern.githubservice.entity.Branch;
+import com.philbjern.githubservice.entity.GithubUser;
 import com.philbjern.githubservice.dto.ErrorDTO;
 import com.philbjern.githubservice.dto.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import java.util.List;
 @RequestMapping("api")
 @Slf4j
 @PropertySource("github.properties")
+@EnableCaching
 public class RepoController {
 
     private final WebClient webClient;
@@ -33,20 +36,24 @@ public class RepoController {
                 .build();
     }
 
+    @Cacheable(value = "userRepos", key = "#username")
     @GetMapping(path = "/{username}", produces = "application/json")
     public Mono<ResponseEntity<List<Response>>> getUserReposWithoutForks(@PathVariable String username) {
         return webClient.get()
                 .uri("/users/{username}/repos", username)
                 .retrieve()
-                .bodyToFlux(GithubAPIUsersResponse.class)
+                .bodyToFlux(GithubUser.class)
+                .filter(repo -> !repo.isFork())
+                .take(5)
                 .flatMap(repo -> {
-                    String urlBranches = repo.getBranches_url()
+                    String urlBranches = repo.getBranchesUrl()
                             .replace("{/branch}", "");
 
                     return webClient.get()
                             .uri(urlBranches)
                             .retrieve()
                             .bodyToFlux(Branch.class)
+                            .take(10)
                             .collectList()
                             .map(branches -> {
                                 Response resp = new Response();

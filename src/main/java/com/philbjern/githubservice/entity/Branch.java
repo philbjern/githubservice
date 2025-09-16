@@ -1,8 +1,6 @@
-package com.philbjern.githubservice.domain;
+package com.philbjern.githubservice.entity;
 
 import lombok.Data;
-
-import java.util.List;
 
 @Data
 public class Branch {

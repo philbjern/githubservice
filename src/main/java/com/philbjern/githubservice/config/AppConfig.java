@@ -1,11 +1,9 @@
-package com.philbjern.githubservice;
+package com.philbjern.githubservice.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.client.RestTemplate;
 
-@PropertySource("github.properties")
 @Configuration
 public class AppConfig {
 
