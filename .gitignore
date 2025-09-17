@@ -35,3 +35,6 @@ build/
 .github
 !**/src/main/**/github.properties
 github.properties
+
+.env
+
